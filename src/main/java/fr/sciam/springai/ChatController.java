@@ -24,4 +24,10 @@ public class ChatController {
     public Flux<String> chatCompletionWithStream(@RequestParam("message") String message) {
         return chatService.chatWithStream(message);
     }
+
+    @GetMapping(value = "images/generations")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public String generateImage(@RequestParam("message") String message) {
+        return chatService.generateImage(message);
+    }
 }
