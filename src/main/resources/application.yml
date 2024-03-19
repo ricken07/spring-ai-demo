@@ -1,4 +1,11 @@
 spring:
+
+  # Database
+  datasource:
+    url: jdbc:postgresql://localhost:5434/vector_store
+    username: postgres
+    password: postgres
+
   # Spring AI
   ai:
     openai:
@@ -7,9 +14,14 @@ spring:
         options:
           functions : paymentStatus
           model: gpt-4
+
     mistralai:
       api-key: ${MISTRAL_AI_API_KEY}
       chat:
         options:
           functions : paymentStatus
           model: mistral-large-latest
+
+    vectorstore:
+      pgvector:
+        dimensions: 1536

@@ -3,11 +3,12 @@ package fr.sciam.springai;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
-import org.springframework.ai.image.ImageOptionsBuilder;
 import org.springframework.ai.image.ImagePrompt;
-import org.springframework.ai.mistralai.MistralAiChatClient;
+import org.springframework.ai.openai.OpenAiChatClient;
 import org.springframework.ai.openai.OpenAiImageClient;
 import org.springframework.ai.openai.OpenAiImageOptions;
+import org.springframework.ai.vectorstore.SearchRequest;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -18,18 +19,23 @@ import java.util.Map;
 
 @Service
 public class ChatServiceImpl implements ChatService {
-    private final MistralAiChatClient chatClient;
+    private final OpenAiChatClient chatClient;
 
     private final OpenAiImageClient imageClient;
 
     private final Resource systemPrompt;
 
+    private final VectorStore vectorStore;
+
     public ChatServiceImpl(
-            MistralAiChatClient chatClient, OpenAiImageClient imageClient,
-            @Value("classpath:/prompts/system-qa.st") Resource systemPrompt) {
+            OpenAiChatClient chatClient,
+            OpenAiImageClient imageClient,
+            @Value("classpath:/prompts/system-qa-rag.st") Resource systemPrompt,
+            VectorStore vectorStore) {
         this.chatClient = chatClient;
         this.imageClient = imageClient;
         this.systemPrompt = systemPrompt;
+        this.vectorStore = vectorStore;
     }
 
     @Override
@@ -57,8 +63,15 @@ public class ChatServiceImpl implements ChatService {
 
     private Prompt getPrompt(String message) {
 
+        // Retrieve similar chunks from the vector database
+        var similarity = vectorStore.similaritySearch(
+                SearchRequest.query("")
+                        .withQuery(message)
+                        .withSimilarityThreshold(0.1)
+                        .withTopK(3));
+
         var systemMessage = new SystemPromptTemplate(systemPrompt)
-                .createMessage(Map.of("question", message));
+                .createMessage(Map.of("question", message, "context", similarity));
 
         var userMessage = new UserMessage(message);
 
