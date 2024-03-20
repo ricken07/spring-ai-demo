@@ -1,0 +1,57 @@
+import {useState} from "react";
+import {MessageList, MessageListItem} from "@hilla/react-components/MessageList";
+import {ChatEndPoint} from "Frontend/generated/endpoints";
+import {MessageInput} from "@hilla/react-components/MessageInput";
+import {Upload} from "@hilla/react-components/Upload";
+import {Button} from "@hilla/react-components/Button";
+
+export default function ChatView() {
+    const [messages, setMessages] = useState<MessageListItem[]>([]);
+
+    function addMessage(message: MessageListItem) {
+        setMessages(messages => [...messages, message]);
+    }
+
+    function appendToLastMessage(chunk: string) {
+        setMessages(messages => {
+            const lastMessage = messages[messages.length - 1];
+            lastMessage.text += chunk;
+            return [...messages.slice(0, -1), lastMessage];
+        });
+    }
+
+    async function sendMessage(message: string) {
+        addMessage({
+            text: message,
+            userName: 'You'
+        });
+
+        let first = true;
+        ChatEndPoint.chat(message).onNext(chunk => {
+            if (first && chunk) {
+                addMessage({
+                    text: chunk,
+                    userName: 'Assistant'
+                });
+
+                first = false;
+            } else {
+                appendToLastMessage(chunk!);
+            }
+        });
+    }
+
+    return (
+        <div className="p-m flex flex-col h-full box-border">
+            <Upload
+                maxFiles={1}
+                accept="application/pdf,.pdf,.docx,doc,csv,xls"
+                /*onFileReject={fileRejectHandler}*/
+            >
+                <Button slot="add-button" theme="primary">
+                    Upload File...
+                </Button>
+            </Upload>
+        </div>
+    );
+}
