@@ -10,6 +10,7 @@ import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,7 +23,7 @@ import java.util.List;
 @SpringBootApplication
 public class SpringAiDemo {
 
-    //@Value("classpath:/data/system-qa.st")
+    @Value("classpath:/data/rapport-observation.pdf")
     Resource data;
 
     public static void main(String[] args) {

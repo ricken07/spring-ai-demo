@@ -30,7 +30,7 @@ public class ChatServiceImpl implements ChatService {
     public ChatServiceImpl(
             OpenAiChatClient chatClient,
             OpenAiImageClient imageClient,
-            @Value("classpath:/prompts/system-qa-rag.st") Resource systemPrompt,
+            @Value("classpath:/prompts/system-qa-rag2.st") Resource systemPrompt,
             VectorStore vectorStore) {
         this.chatClient = chatClient;
         this.imageClient = imageClient;
@@ -71,7 +71,7 @@ public class ChatServiceImpl implements ChatService {
                         .withTopK(3));
 
         var systemMessage = new SystemPromptTemplate(systemPrompt)
-                .createMessage(Map.of("question", message, "context", similarity));
+                .createMessage(Map.of("question", message, "documents", similarity));
 
         var userMessage = new UserMessage(message);
 
