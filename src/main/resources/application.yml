@@ -1,4 +1,7 @@
 spring:
+  devtools:
+    restart:
+      additional-exclude: dev/hilla/openapi.json
   # Spring AI
   ai:
     openai:
@@ -11,3 +14,7 @@ spring:
       chat:
         options:
           model: mistral-large-latest
+
+vaadin:
+  launch-browser: true
+  whitelisted-packages: com.vaadin,org.vaadin,dev.hilla,fr.sciam.SpringAiDemo
