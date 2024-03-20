@@ -14,13 +14,15 @@ import reactor.core.publisher.Flux;
 public class ChatEndPoint {
 
     private final ChatService chatService;
+
     @Autowired
     public ChatEndPoint(ChatService chatService) {
         this.chatService = chatService;
     }
+
     @PostConstruct
     public void init () {
-        //this.dataLoadingService.load();
+        chatService.ingestData();
     }
 
     public Flux<String> chat(String message) {
@@ -31,7 +33,7 @@ public class ChatEndPoint {
         return chatService.chat(message);
     }
 
-    public String generateImage(String message) {
+    public String generateImage(String message)  {
         return chatService.generateImage(message);
     }
 }

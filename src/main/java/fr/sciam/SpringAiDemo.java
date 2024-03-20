@@ -46,14 +46,14 @@ public class SpringAiDemo implements AppShellConfigurator {
         return args -> {
 
             // Extract data from source
-            var documents = extractData();
+            /*var documents = extractData();
 
             jdbcTemplate.update("delete from vector_store");
 
-            var tokenTextSplitter = new TokenTextSplitter();
+            var tokenTextSplitter = new TokenTextSplitter();*/
 
             // Parsing document, splitting, creating embeddings and storing in vector store...
-            vectorStore.accept(tokenTextSplitter.apply(documents));
+            /*vectorStore.accept(tokenTextSplitter.apply(documents));*/
 
         };
     }
