@@ -1,4 +1,7 @@
 spring:
+  devtools:
+    restart:
+      additional-exclude: dev/hilla/openapi.json
 
   # Database
   datasource:
@@ -25,3 +28,7 @@ spring:
     vectorstore:
       pgvector:
         dimensions: 1536
+
+vaadin:
+  launch-browser: true
+  whitelisted-packages: com.vaadin,org.vaadin,dev.hilla,fr.sciam.SpringAiDemo

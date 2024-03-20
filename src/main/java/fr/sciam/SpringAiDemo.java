@@ -1,5 +1,7 @@
 package fr.sciam;
 
+import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.theme.Theme;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.embedding.EmbeddingClient;
 import org.springframework.ai.reader.ExtractedTextFormatter;
@@ -21,7 +23,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.List;
 
 @SpringBootApplication
-public class SpringAiDemo {
+@Theme(value = "spring-ai-demo")
+public class SpringAiDemo implements AppShellConfigurator {
 
     @Value("classpath:/data/rapport-observation.pdf")
     Resource data;
