@@ -30,4 +30,8 @@ public class ChatEndPoint {
     public String chat2(String message) {
         return chatService.chat(message);
     }
+
+    public String generateImage(String message) {
+        return chatService.generateImage(message);
+    }
 }

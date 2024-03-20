@@ -2,10 +2,8 @@ import {useState} from "react";
 import {MessageList, MessageListItem} from "@hilla/react-components/MessageList";
 import {ChatEndPoint} from "Frontend/generated/endpoints";
 import {MessageInput} from "@hilla/react-components/MessageInput";
-import {Upload} from "@hilla/react-components/Upload";
-import {Button} from "@hilla/react-components/Button";
 
-export default function ChatView() {
+export default function ImageView() {
     const [messages, setMessages] = useState<MessageListItem[]>([]);
 
     function addMessage(message: MessageListItem) {
@@ -23,11 +21,11 @@ export default function ChatView() {
     async function sendMessage(message: string) {
         addMessage({
             text: message,
-            userName: 'You'
+            userName: 'Vous'
         });
 
         let first = true;
-        ChatEndPoint.chat(message).onNext(chunk => {
+        ChatEndPoint.generateImage(message).then(chunk => {
             if (first && chunk) {
                 addMessage({
                     text: chunk,
@@ -43,15 +41,8 @@ export default function ChatView() {
 
     return (
         <div className="p-m flex flex-col h-full box-border">
-            <Upload
-                maxFiles={1}
-                accept="application/pdf,.pdf,.docx,doc,csv,xls"
-                /*onFileReject={fileRejectHandler}*/
-            >
-                <Button slot="add-button" theme="primary">
-                    Upload File...
-                </Button>
-            </Upload>
+            <MessageList items={messages} className="flex-grow"/>
+            <MessageInput onSubmit={e => sendMessage(e.detail.value)}/>
         </div>
     );
 }

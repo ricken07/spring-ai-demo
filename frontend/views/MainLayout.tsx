@@ -19,6 +19,7 @@ export default function MainLayout() {
           <nav>
             <NavLink className={navLinkClasses} to="/">Chat </NavLink>
             <NavLink className={navLinkClasses} to="chat/streaming">Streaming Chat </NavLink>
+              <NavLink className={navLinkClasses} to="image">Image generation </NavLink>
           </nav>
         </header>
       </div>
