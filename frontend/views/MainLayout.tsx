@@ -15,7 +15,7 @@ export default function MainLayout() {
     <AppLayout primarySection="drawer">
       <div slot="drawer" className="flex flex-col justify-between h-full p-m">
         <header className="flex flex-col gap-m">
-          <h1 className="text-l m-0">SPRING AI - DEMO</h1>
+          <h1 className="text-l m-0">SPRING AI 🤖 - DEMO</h1>
           <nav>
             <NavLink className={navLinkClasses} to="/">Chat </NavLink>
             <NavLink className={navLinkClasses} to="chat/streaming">Streaming Chat </NavLink>

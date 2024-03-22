@@ -43,7 +43,7 @@ public class ChatServiceImpl implements ChatService {
             OpenAiImageClient imageClient,
             @Value("classpath:/prompts/system-qa-rag2.st") Resource systemPrompt,
             VectorStore vectorStore,
-            @Value("classpath:/data/rapport-observation.pdf") Resource dataPdf,
+            @Value("classpath:/data/rapport-commission-ia.pdf") Resource dataPdf,
             JdbcTemplate jdbcTemplate) {
         this.chatClient = chatClient;
         this.imageClient = imageClient;
@@ -99,10 +99,10 @@ public class ChatServiceImpl implements ChatService {
                 SearchRequest.query("")
                         .withQuery(message)
                         .withSimilarityThreshold(0.1)
-                        .withTopK(3));
+                        .withTopK(5));
 
         var systemMessage = new SystemPromptTemplate(systemPrompt)
-                .createMessage(Map.of("question", message, "documents", similarity));
+                .createMessage(Map.of("question", message, "documents", similarity, "functions", "paymentStatus"));
 
         var userMessage = new UserMessage(message);
 
