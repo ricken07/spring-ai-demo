@@ -5,6 +5,7 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.image.ImagePrompt;
+import org.springframework.ai.mistralai.MistralAiChatClient;
 import org.springframework.ai.openai.OpenAiChatClient;
 import org.springframework.ai.openai.OpenAiImageClient;
 import org.springframework.ai.openai.OpenAiImageOptions;
@@ -26,7 +27,7 @@ import java.util.Map;
 
 @Service
 public class ChatServiceImpl implements ChatService {
-    private final OpenAiChatClient chatClient;
+    private final MistralAiChatClient chatClient;
 
     private final OpenAiImageClient imageClient;
 
@@ -39,9 +40,9 @@ public class ChatServiceImpl implements ChatService {
     private final JdbcTemplate jdbcTemplate;
 
     public ChatServiceImpl(
-            OpenAiChatClient chatClient,
+            MistralAiChatClient chatClient,
             OpenAiImageClient imageClient,
-            @Value("classpath:/prompts/system-qa-rag2.st") Resource systemPrompt,
+            @Value("classpath:/prompts/system-qa-rag.st") Resource systemPrompt,
             VectorStore vectorStore,
             @Value("classpath:/data/rapport-commission-ia.pdf") Resource dataPdf,
             JdbcTemplate jdbcTemplate) {
@@ -102,7 +103,7 @@ public class ChatServiceImpl implements ChatService {
                         .withTopK(5));
 
         var systemMessage = new SystemPromptTemplate(systemPrompt)
-                .createMessage(Map.of("question", message, "documents", similarity, "functions", "paymentStatus"));
+                .createMessage(Map.of("question", message, "context", similarity/*, "functions", "paymentStatus"*/));
 
         var userMessage = new UserMessage(message);
 
