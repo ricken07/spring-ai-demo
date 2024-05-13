@@ -2,22 +2,21 @@ spring:
   # Spring AI
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY}
+      api-key: ${OPEN_AI_API_KEY}
       chat:
         options:
           model: gpt-4
+        api-key: ${OPEN_AI_API_KEY}
 
     mistralai:
       api-key: ${MISTRAL_AI_API_KEY}
       chat:
         options:
-          model: mistral-large-latest
-
-
-    vectorstore:
-      pgvector:
-        dimensions: 1536
+          model: mistral-small-latest
 
   threads:
     virtual:
       enabled: true
+  main:
+    web-application-type: none
+    banner-mode: off
