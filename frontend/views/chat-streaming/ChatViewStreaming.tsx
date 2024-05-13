@@ -3,7 +3,7 @@ import {MessageList, MessageListItem} from "@hilla/react-components/MessageList"
 import {ChatEndPoint} from "Frontend/generated/endpoints";
 import {MessageInput} from "@hilla/react-components/MessageInput";
 
-export default function ChatView2() {
+export default function ChatViewStreaming() {
     const [messages, setMessages] = useState<MessageListItem[]>([]);
 
     function addMessage(message: MessageListItem) {

@@ -20,11 +20,13 @@ public class FunctionsCalling {
     private static final Map<Transaction, TransactionStatus> DATASET = Map.of(
             new Transaction("001"), new TransactionStatus("pending"),
             new Transaction("002"), new TransactionStatus("approved"),
-            new Transaction("003"), new TransactionStatus("rejected"));
+            new Transaction("003"), new TransactionStatus("rejected"),
+            new Transaction("004"), new TransactionStatus("pending"));
 
     @Bean
     @Description("Get the status of a payment transaction")
     public Function<Transaction, TransactionStatus> paymentStatus() {
+        log.info("paymentStatus function called");
         return DATASET::get;
     }
 }
