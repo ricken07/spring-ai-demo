@@ -1,4 +1,4 @@
-package fr.sciam;
+package com.demo;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.theme.Theme;
@@ -8,7 +8,6 @@ import org.springframework.ai.reader.ExtractedTextFormatter;
 import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
 import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
 import org.springframework.ai.reader.tika.TikaDocumentReader;
-import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -60,8 +59,8 @@ public class SpringAiDemo implements AppShellConfigurator {
 
     private List<Document> extractData() {
 
-        // Get data and Extract text from page html
-        var dataUrl = "https://rickenbazolo.com/";
+        // Get data and Extract text from html page
+        var dataUrl = "https://www.parisjug.org/events/2024/05-14-ai-llm/";
         var tikaReader = new TikaDocumentReader(dataUrl);
 
         return tikaReader.get();

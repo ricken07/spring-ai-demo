@@ -1,4 +1,4 @@
-package fr.sciam.springai;
+package com.demo.springai;
 
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
@@ -6,7 +6,6 @@ import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.mistralai.MistralAiChatClient;
-import org.springframework.ai.openai.OpenAiChatClient;
 import org.springframework.ai.openai.OpenAiImageClient;
 import org.springframework.ai.openai.OpenAiImageOptions;
 import org.springframework.ai.reader.ExtractedTextFormatter;
@@ -96,14 +95,15 @@ public class ChatServiceImpl implements ChatService {
     private Prompt getPrompt(String message) {
 
         // Retrieve similar chunks from the vector database
+        // Recherche des informations pertinentes qui correspondent ou sont similaires à l'instruction initiale
         var similarity = vectorStore.similaritySearch(
                 SearchRequest.query("")
-                        .withQuery(message)
-                        .withSimilarityThreshold(0.1)
-                        .withTopK(5));
+                        .withQuery(message) // Instruction initiale
+                        .withSimilarityThreshold(0.1) // Seuil de similarité pour filtrer la réponse de la recherche.
+                        .withTopK(5)); // les "k" premiers résultats similaires à renvoyer.
 
         var systemMessage = new SystemPromptTemplate(systemPrompt)
-                .createMessage(Map.of("question", message, "context", similarity/*, "functions", "paymentStatus"*/));
+                .createMessage(Map.of("question", message, "context", similarity));
 
         var userMessage = new UserMessage(message);
 
@@ -113,7 +113,7 @@ public class ChatServiceImpl implements ChatService {
     private List<Document> extractData() {
 
         // Get data and Extract text from page html
-        var dataUrl = "https://rickenbazolo.com/";
+        var dataUrl = "https://www.parisjug.org/events/2024/05-14-ai-llm/";
         var tikaReader = new TikaDocumentReader(dataUrl);
 
         return tikaReader.get();

@@ -22,7 +22,6 @@ spring:
       api-key: ${MISTRAL_AI_API_KEY}
       chat:
         options:
-          functions : paymentStatus
           model: mistral-large-latest
 
     vectorstore:
