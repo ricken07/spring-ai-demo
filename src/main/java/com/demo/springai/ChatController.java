@@ -1,4 +1,4 @@
-package fr.sciam.springai;
+package com.demo.springai;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

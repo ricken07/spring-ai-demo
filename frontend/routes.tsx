@@ -1,7 +1,7 @@
 import MainLayout from 'Frontend/views/MainLayout.js';
 import { createBrowserRouter, RouteObject } from 'react-router-dom';
 import ChatView from "Frontend/views/chat/ChatView";
-import ChatView2 from "Frontend/views/chat-simple/ChatView2";
+import ChatViewStreaming from "Frontend/views/chat-streaming/ChatViewStreaming";
 
 
 export const routes: RouteObject[] = [
@@ -10,7 +10,7 @@ export const routes: RouteObject[] = [
     handle: { title: 'Main' },
     children: [
       { path: '/', element: <ChatView />, handle: { title: 'CHAT' } },
-      { path: 'chat/Streaming', element: <ChatView2 />, handle: { title: 'STREAMING CHAT' } }
+      { path: 'chat/Streaming', element: <ChatViewStreaming />, handle: { title: 'CHAT STREAMING ' } }
     ],
   },
 ];

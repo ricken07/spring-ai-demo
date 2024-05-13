@@ -4,17 +4,13 @@ spring:
       additional-exclude: dev/hilla/openapi.json
   # Spring AI
   ai:
-    openai:
-      api-key: ${OPENAI_API_KEY}
-      chat:
-        options:
-          model: gpt-4
     mistralai:
       api-key: ${MISTRAL_AI_API_KEY}
       chat:
         options:
           model: mistral-large-latest
+          temperature: 0.7
 
 vaadin:
   launch-browser: true
-  whitelisted-packages: com.vaadin,org.vaadin,dev.hilla,fr.sciam.SpringAiDemo
+  whitelisted-packages: com.vaadin,org.vaadin,dev.hilla,com.demo.SpringAiDemo
