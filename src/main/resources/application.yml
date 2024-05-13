@@ -5,7 +5,7 @@ spring:
   # Spring AI
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY}
+      api-key: ${OPEN_AI_API_KEY}
       chat:
         options:
           functions : paymentStatus
@@ -16,7 +16,7 @@ spring:
         options:
           functions : paymentStatus
           model: mistral-large-latest
-          temperature: 0.7
+          temperature: 0.5
 
 vaadin:
   launch-browser: true

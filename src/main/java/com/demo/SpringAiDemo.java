@@ -2,10 +2,7 @@ package com.demo;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.theme.Theme;
-import org.springframework.ai.chat.ChatClient;
 import org.springframework.ai.chat.StreamingChatClient;
-import org.springframework.ai.chat.chatbot.ChatBot;
-import org.springframework.ai.chat.chatbot.DefaultChatBot;
 import org.springframework.ai.chat.chatbot.DefaultStreamingChatBot;
 import org.springframework.ai.chat.chatbot.StreamingChatBot;
 import org.springframework.ai.chat.history.*;

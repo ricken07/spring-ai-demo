@@ -5,9 +5,9 @@ import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 import org.springframework.ai.chat.prompt.transformer.PromptContext;
-import org.springframework.ai.image.ImageOptionsBuilder;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.mistralai.MistralAiChatClient;
+import org.springframework.ai.openai.OpenAiChatClient;
 import org.springframework.ai.openai.OpenAiImageClient;
 import org.springframework.ai.openai.OpenAiImageOptions;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +21,9 @@ import java.util.UUID;
 
 @Service
 public class ChatServiceImpl implements ChatService {
-    private final MistralAiChatClient chatClient;
+    private final MistralAiChatClient mistralAiChatClient;
+
+    private final OpenAiChatClient openAiChatClient;
 
     private final OpenAiImageClient imageClient;
 
@@ -31,11 +33,12 @@ public class ChatServiceImpl implements ChatService {
     private static final String CONVERSATION_ID = UUID.randomUUID().toString();
 
     public ChatServiceImpl(
-            MistralAiChatClient chatClient,
+            MistralAiChatClient chatClient, OpenAiChatClient openAiChatClient,
             @Value("classpath:/prompts/system-qa.st") Resource systemPrompt,
             StreamingChatBot chatBot,
             OpenAiImageClient imageClient) {
-        this.chatClient = chatClient;
+        this.mistralAiChatClient = chatClient;
+        this.openAiChatClient = openAiChatClient;
         this.imageClient = imageClient;
         this.systemPrompt = systemPrompt;
         this.chatBot = chatBot;
@@ -44,7 +47,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public String chat(String message) {
         var prompt = getPrompt(message);
-        return chatClient.call(prompt).getResult().getOutput().getContent();
+        return openAiChatClient.call(prompt).getResult().getOutput().getContent();
     }
 
     @Override
