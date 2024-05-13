@@ -16,7 +16,8 @@ spring:
         options:
           functions : paymentStatus
           model: mistral-large-latest
+          temperature: 0.7
 
 vaadin:
   launch-browser: true
-  whitelisted-packages: com.vaadin,org.vaadin,dev.hilla,fr.sciam.SpringAiDemo
+  whitelisted-packages: com.vaadin,org.vaadin,dev.hilla,com.demo.SpringAiDemo
