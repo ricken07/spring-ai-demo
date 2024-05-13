@@ -1,4 +1,4 @@
-package fr.sciam.springai;
+package com.demo.springai;
 
 import reactor.core.publisher.Flux;
 
