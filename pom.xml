@@ -40,11 +40,11 @@
             <version>${spring-ai.version}</version>
         </dependency>
         <!-- OPENAI LLM -->
-        <!--<dependency>
+        <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
             <version>${spring-ai.version}</version>
-        </dependency>-->
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
