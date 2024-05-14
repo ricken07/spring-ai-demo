@@ -16,7 +16,7 @@ spring:
       chat:
         options:
           functions : paymentStatus
-          model: gpt-4
+          model: gpt-3.5-turbo
 
     mistralai:
       api-key: ${MISTRAL_AI_API_KEY}

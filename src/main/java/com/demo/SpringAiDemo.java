@@ -2,31 +2,27 @@ package com.demo;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.theme.Theme;
+import org.springframework.ai.chat.ChatClient;
 import org.springframework.ai.chat.StreamingChatClient;
+import org.springframework.ai.chat.chatbot.ChatBot;
+import org.springframework.ai.chat.chatbot.DefaultChatBot;
 import org.springframework.ai.chat.chatbot.DefaultStreamingChatBot;
 import org.springframework.ai.chat.chatbot.StreamingChatBot;
 import org.springframework.ai.chat.history.*;
-import org.springframework.ai.mistralai.MistralAiChatClient;
-import org.springframework.ai.mistralai.api.MistralAiApi;
+import org.springframework.ai.chat.prompt.transformer.QuestionContextAugmentor;
+import org.springframework.ai.chat.prompt.transformer.VectorStoreRetriever;
+import org.springframework.ai.evaluation.RelevancyEvaluator;
+import org.springframework.ai.openai.OpenAiChatClient;
+import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.tokenizer.JTokkitTokenCountEstimator;
+import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.ai.document.Document;
 import org.springframework.ai.embedding.EmbeddingClient;
-import org.springframework.ai.reader.ExtractedTextFormatter;
-import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
-import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
-import org.springframework.ai.reader.tika.TikaDocumentReader;
 import org.springframework.ai.vectorstore.PgVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
@@ -34,9 +30,6 @@ import java.util.List;
 @SpringBootApplication
 @Theme(value = "spring-ai-demo")
 public class SpringAiDemo implements AppShellConfigurator {
-
-    @Value("classpath:/data/rapport-observation.pdf")
-    Resource data;
 
     public static void main(String[] args) {
         SpringApplication.run(SpringAiDemo.class, args);
@@ -50,67 +43,44 @@ public class SpringAiDemo implements AppShellConfigurator {
     }
 
     @Bean
-    ApplicationRunner runner(VectorStore vectorStore,
-                             JdbcTemplate jdbcTemplate) {
-        return args -> {
-
-            // Extract data from source
-            /*var documents = extractData();
-
-            jdbcTemplate.update("delete from vector_store");
-
-            var tokenTextSplitter = new TokenTextSplitter();*/
-
-            // Parsing document, splitting, creating embeddings and storing in vector store...
-            /*vectorStore.accept(tokenTextSplitter.apply(documents));*/
-
-        };
-    }
-
-    private List<Document> extractData() {
-
-        // Get data and Extract text from html page
-        var dataUrl = "https://www.parisjug.org/events/2024/05-14-ai-llm/";
-        var tikaReader = new TikaDocumentReader(dataUrl);
-
-        return tikaReader.get();
-    }
-
-    private List<Document> extractData2() {
-
-        // Get data and Extract text from pdf
-        var docs = new PagePdfDocumentReader(data,
-                PdfDocumentReaderConfig.builder()
-                        .withPageTopMargin(0)
-                        .withPageExtractedTextFormatter(
-                                ExtractedTextFormatter.builder()
-                                        .withNumberOfTopTextLinesToDelete(0)
-                                        .build())
-                        .withPagesPerDocument(1)
-                        .build());
-
-        return docs.get();
-    }
-
-    public MistralAiApi chatCompletionApi() {
-        return new MistralAiApi(System.getenv("MISTRAL_AI_API_KEY"));
+    public OpenAiApi openAiApi() {
+        return new OpenAiApi(System.getenv("OPEN_AI_API_KEY"));
     }
 
     @Bean
-    public StreamingChatClient mistralChatClient(MistralAiApi mistralAiApi) {
-        return new MistralAiChatClient(mistralAiApi);
+    public StreamingChatClient chatClient(OpenAiApi openAiApi) {
+        return new OpenAiChatClient(openAiApi);
     }
 
     @Bean
-    public StreamingChatBot chatBot(StreamingChatClient mistralChatClient) {
-        var chatHistory = new InMemoryChatMemory();
-        return DefaultStreamingChatBot.builder(mistralChatClient)
-                .withRetrievers(List.of(new ChatMemoryRetriever(chatHistory)))
+    public ChatClient defaultChatClient(OpenAiApi openAiApi) {
+        return new OpenAiChatClient(openAiApi);
+    }
+
+    @Bean
+    public StreamingChatBot chatBot(StreamingChatClient chatClient, VectorStore vectorStore) {
+        return DefaultStreamingChatBot.builder(chatClient)
+                .withRetrievers(List.of(new VectorStoreRetriever(vectorStore, SearchRequest.defaults())))
                 .withDocumentPostProcessors(
                         List.of(new LastMaxTokenSizeContentTransformer(new JTokkitTokenCountEstimator(), 1000)))
-                .withAugmentors(List.of(new SystemPromptChatMemoryAugmentor()))
-                .withChatBotListeners(List.of(new ChatMemoryChatBotListener(chatHistory)))
+                .withAugmentors(List.of(new QuestionContextAugmentor()))
                 .build();
 
+    }
+
+    @Bean
+    public ChatBot chatBot2(ChatClient defaultChatClient, VectorStore vectorStore) {
+        return DefaultChatBot.builder(defaultChatClient)
+                .withRetrievers(List.of(new VectorStoreRetriever(vectorStore, SearchRequest.defaults())))
+                .withContentPostProcessors(
+                        List.of(new LastMaxTokenSizeContentTransformer(new JTokkitTokenCountEstimator(), 1000)))
+                .withAugmentors(List.of(new QuestionContextAugmentor()))
+                .build();
+
+    }
+
+    @Bean
+    public RelevancyEvaluator relevancyEvaluator(OpenAiChatClient chatClient) {
+        return new RelevancyEvaluator(chatClient);
     }
 }

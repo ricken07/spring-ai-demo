@@ -19,6 +19,3 @@ DOCUMENT:
 
 QUESTION:
 {question}
-
-FUNCTION:
-{functions}

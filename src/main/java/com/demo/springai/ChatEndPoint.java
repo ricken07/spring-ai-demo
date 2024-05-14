@@ -27,7 +27,7 @@ public class ChatEndPoint {
     @PostConstruct
     public void init () {
         log.info("ChatEndPoint initialized");
-        chatService.ingestData();
+        //chatService.ingestData();
     }
 
     public Flux<String> chat(String message) {
