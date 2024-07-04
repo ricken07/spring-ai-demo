@@ -2,21 +2,15 @@ package com.demo.springai;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.ai.chat.chatbot.ChatBot;
-import org.springframework.ai.chat.chatbot.ChatBotResponse;
-import org.springframework.ai.chat.chatbot.StreamingChatBot;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.QuestionAnswerAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
-import org.springframework.ai.chat.prompt.transformer.PromptContext;
-import org.springframework.ai.evaluation.EvaluationRequest;
-import org.springframework.ai.evaluation.EvaluationResponse;
-import org.springframework.ai.evaluation.RelevancyEvaluator;
-import org.springframework.ai.image.ImagePrompt;
-import org.springframework.ai.mistralai.MistralAiChatClient;
-import org.springframework.ai.openai.OpenAiChatClient;
 import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.ai.openai.OpenAiImageClient;
+import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.openai.OpenAiImageOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -37,21 +31,14 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.ai.openai.api.OpenAiApi.ChatModel.GPT_4_TURBO_PREVIEW;
+import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
 
 @Service
 public class ChatServiceImpl implements ChatService {
 
     private final Logger log = LoggerFactory.getLogger(ChatServiceImpl.class);
 
-    private final MistralAiChatClient mistralAiChatClient;
-
-    private final OpenAiChatClient openAiChatClient;
-
-    private final OpenAiImageClient imageClient;
-    private final StreamingChatBot chatBot;
-    private final ChatBot chatBot2;
+    private final ChatClient chatClient;
 
     private static final String CONVERSATION_ID = UUID.randomUUID().toString();
 
@@ -66,41 +53,42 @@ public class ChatServiceImpl implements ChatService {
     private final JdbcTemplate jdbcTemplate;
 
     public ChatServiceImpl(
-            MistralAiChatClient mistralAiChatClient, OpenAiChatClient openAiChatClient,
-            OpenAiImageClient imageClient,
-            StreamingChatBot chatBot, ChatBot chatBot2,
+            ChatClient.Builder chatClientBuilder,
+            ChatMemory chatMemory,
             VectorStore vectorStore,
             JdbcTemplate jdbcTemplate,
             @Value("classpath:/prompts/system-qa-rag.st") Resource systemPrompt,
             @Value("classpath:/data/rapport-commission-ia.pdf") Resource rapportCommission,
             @Value("classpath:/data/rapport-observation.pdf") Resource rapportObservation,
             @Value("classpath:/data/jp-morgan-annual-report.pdf") Resource rapportJp) {
-        this.mistralAiChatClient = mistralAiChatClient;
-        this.openAiChatClient = openAiChatClient;
-        this.imageClient = imageClient;
-        this.chatBot = chatBot;
-        this.chatBot2 = chatBot2;
         this.systemPrompt = systemPrompt;
         this.vectorStore = vectorStore;
         this.rapportCommission = rapportCommission;
         this.jdbcTemplate = jdbcTemplate;
         this.rapportObservation = rapportObservation;
         this.rapportJp = rapportJp;
-    }
-
-    @Override
-    public String chat(String message) {
-        var prompt = getPrompt(message);
-        var response = chatBot2.call(new PromptContext(prompt));
-        var result = evaluate(response);
-        return response.getChatResponse().getResult().getOutput().getContent();
+        this.chatClient = chatClientBuilder
+                .defaultOptions(OpenAiChatOptions.builder()
+                        .withTemperature(0.2f)
+                        .build())
+                .defaultAdvisors(new MessageChatMemoryAdvisor(chatMemory))
+                .build();
     }
 
     @Override
     public Flux<String> chatWithStream(String message) {
         var prompt = getPrompt(message);
-        return chatBot.stream(new PromptContext(prompt)).getChatResponse()
-                .map(response -> response.getResult().getOutput().getContent());
+        return chatClient.prompt()
+                /*.system(sys -> sys.text(systemPrompt)
+                        .param("question", message)
+                )*/
+                .advisors(new QuestionAnswerAdvisor(vectorStore, SearchRequest.defaults()
+                        .withTopK(5).withSimilarityThreshold(0.5)))
+                .user(message)
+                .advisors(a -> a.param(CHAT_MEMORY_CONVERSATION_ID_KEY, "1234"))
+                .user(message)
+                .stream()
+                .content();
     }
 
     @Override
@@ -110,7 +98,7 @@ public class ChatServiceImpl implements ChatService {
                 .withWidth(1024)
                 .withN(1)
                 .build());
-        return imageClient.call(prompt).getResult().getOutput().getUrl();
+        return "";
     }
 
     @Override
@@ -208,17 +196,6 @@ public class ChatServiceImpl implements ChatService {
                         .build());
 
         return docs.get();
-    }
-
-    private EvaluationResponse evaluate(ChatBotResponse response) {
-        var openAiChatOptions = OpenAiChatOptions.builder()
-                .withModel(GPT_4_TURBO_PREVIEW.getValue())
-                .build();
-        var relevancyEvaluator = new RelevancyEvaluator(this.openAiChatClient, openAiChatOptions);
-        var evaluationRequest = new EvaluationRequest(response);
-        var evaluationResponse = relevancyEvaluator.evaluate(evaluationRequest);
-        //assertTrue(evaluationResponse.isPass(), "Response is not relevant to the question");
-        return evaluationResponse;
     }
 
 }

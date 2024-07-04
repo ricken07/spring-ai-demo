@@ -27,15 +27,11 @@ public class ChatEndPoint {
     @PostConstruct
     public void init () {
         log.info("ChatEndPoint initialized");
-        //chatService.ingestData();
+        chatService.ingestData();
     }
 
     public Flux<String> chat(String message) {
         return chatService.chatWithStream(message);
-    }
-
-    public String chat2(String message) {
-        return chatService.chat(message);
     }
 
     public String generateImage(String message)  {
